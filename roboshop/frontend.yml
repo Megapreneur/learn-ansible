@@ -7,30 +7,40 @@
         name: nginx
         state: latest
 
+    - name: Remove directory
+      ansible.builtin.file:
+        path: /usr/share/nginx/html
+        state: absent
+
+    - name: Create directory
+      ansible.builtin.file:
+        path: /usr/share/nginx/html
+        state: directory
+
+    - name: Download and Extract Frontend Content
+      ansible.builtin.unarchive:
+        src: https://roboshop-artifacts.s3.amazonaws.com/frontend.zip
+        dest: /usr/share/nginx/html
+        remote_src: yes
+
+    - name: Copying Roboshop Configuration File
+      ansible.builtin.copy:
+        src: roboshop.conf
+        dest: /etc//nginx/default.d/roboshop.conf
+
+    - name: Starting Nginx Server
+      ansible.builtin.systemd_service:
+        state: restarted
+        name: nginx
+        enabled: true
 
 
 
 
-#  source common.sh
-#  component=frontend
-#
-#
-#  echo -e "${color}Installing Nginx Server${nocolor}"
-#  dnf install nginx -y &>>${log_file}
-#  stat_check $?
-#
-#  echo -e "${color}Removing Old App content${nocolor}"
-#  rm -rf /usr/share/nginx/html/* &>>${log_file}
-#  stat_check $?
-#
-#  echo -e "${color}Downloading Frontend Content${nocolor}"
-#  curl -o /tmp/$component.zip https://roboshop-artifacts.s3.amazonaws.com/$component.zip &>>${log_file}
-#  stat_check $?
-#
-#  echo -e "${color}Extracting Frontend Content${nocolor}"
-#  cd /usr/share/nginx/html
-#  unzip /tmp/$component.zip &>>${log_file}
-#  stat_check $?
+
+
+
+
 #  # we need to copy config file
 #  echo -e "${color}Copying Roboshop Configuration File${nocolor}"
 #  cp /root/roboshop-shell/roboshop.conf /etc//nginx/default.d/roboshop.conf &>>${log_file}
